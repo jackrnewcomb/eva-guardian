@@ -5,13 +5,15 @@
 
 namespace eva {
 
-enum class TelemetryType { O2, Pressure, Thermal };
-
 // Placeholder for what would be a decoded SLE-RCF frame in the real system.
-struct TelemetryFrame {
-    TelemetryType type;
+// A real suit reports all of its housekeeping metrics together per sample
+// interval, so we model one frame per suit per tick rather than one frame
+// per metric.
+struct SuitTelemetryFrame {
     std::string suitId;
-    double value; // unit depends on type (see monitor thresholds)
+    double o2Percent;
+    double pressureKpa;
+    double thermalCelsius;
     std::chrono::system_clock::time_point timestamp;
 };
 

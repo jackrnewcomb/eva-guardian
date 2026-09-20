@@ -6,13 +6,13 @@
 namespace eva {
 
 ThermalMonitor::ThermalMonitor(MessageBus& bus) : bus_(bus) {
-    bus_.subscribe("telemetry.thermal", [this](const std::any& payload) { onTelemetry(payload); });
+    bus_.subscribe("telemetry.suit", [this](const std::any& payload) { onTelemetry(payload); });
 }
 
 void ThermalMonitor::onTelemetry(const std::any& payload) {
-    const auto& frame = std::any_cast<const TelemetryFrame&>(payload);
+    const auto& frame = std::any_cast<const SuitTelemetryFrame&>(payload);
 
-    if (frame.value < kMinSafeTempCelsius || frame.value > kMaxSafeTempCelsius) {
+    if (frame.thermalCelsius < kMinSafeTempCelsius || frame.thermalCelsius > kMaxSafeTempCelsius) {
         bus_.publish("alerts", Alert{
             "ThermalMonitor",
             frame.suitId,

@@ -6,13 +6,13 @@
 namespace eva {
 
 O2Monitor::O2Monitor(MessageBus& bus) : bus_(bus) {
-    bus_.subscribe("telemetry.o2", [this](const std::any& payload) { onTelemetry(payload); });
+    bus_.subscribe("telemetry.suit", [this](const std::any& payload) { onTelemetry(payload); });
 }
 
 void O2Monitor::onTelemetry(const std::any& payload) {
-    const auto& frame = std::any_cast<const TelemetryFrame&>(payload);
+    const auto& frame = std::any_cast<const SuitTelemetryFrame&>(payload);
 
-    if (frame.value < kMinSafeO2Percent) {
+    if (frame.o2Percent < kMinSafeO2Percent) {
         bus_.publish("alerts", Alert{
             "O2Monitor",
             frame.suitId,

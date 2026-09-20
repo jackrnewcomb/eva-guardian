@@ -6,8 +6,8 @@
 
 namespace eva {
 
-// Placeholder component: subscribes to raw thermal telemetry and publishes
-// an alert when the value falls outside a safe range.
+// Placeholder component: subscribes to suit telemetry and publishes an
+// alert when the thermal reading falls outside a safe range.
 class ThermalMonitor {
 public:
     explicit ThermalMonitor(MessageBus& bus);

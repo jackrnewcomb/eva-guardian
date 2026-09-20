@@ -13,7 +13,7 @@ struct Alert {
     std::string suitId;
     AlertSeverity severity;
     std::string message;
-    TelemetryFrame frame; // the frame that triggered it
+    SuitTelemetryFrame frame; // the frame that triggered it
 };
 
 } // namespace eva

@@ -6,13 +6,13 @@
 namespace eva {
 
 PressureMonitor::PressureMonitor(MessageBus& bus) : bus_(bus) {
-    bus_.subscribe("telemetry.pressure", [this](const std::any& payload) { onTelemetry(payload); });
+    bus_.subscribe("telemetry.suit", [this](const std::any& payload) { onTelemetry(payload); });
 }
 
 void PressureMonitor::onTelemetry(const std::any& payload) {
-    const auto& frame = std::any_cast<const TelemetryFrame&>(payload);
+    const auto& frame = std::any_cast<const SuitTelemetryFrame&>(payload);
 
-    if (frame.value < kMinSafePressureKpa || frame.value > kMaxSafePressureKpa) {
+    if (frame.pressureKpa < kMinSafePressureKpa || frame.pressureKpa > kMaxSafePressureKpa) {
         bus_.publish("alerts", Alert{
             "PressureMonitor",
             frame.suitId,

@@ -6,8 +6,8 @@
 
 namespace eva {
 
-// Placeholder component: subscribes to raw O2 telemetry and publishes an
-// alert when the value falls outside a safe range.
+// Placeholder component: subscribes to suit telemetry and publishes an
+// alert when the O2 reading falls outside a safe range.
 class O2Monitor {
 public:
     explicit O2Monitor(MessageBus& bus);

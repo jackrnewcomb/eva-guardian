@@ -6,8 +6,8 @@
 
 namespace eva {
 
-// Placeholder component: subscribes to raw suit pressure telemetry and
-// publishes an alert when the value falls outside a safe range.
+// Placeholder component: subscribes to suit telemetry and publishes an
+// alert when the pressure reading falls outside a safe range.
 class PressureMonitor {
 public:
     explicit PressureMonitor(MessageBus& bus);
