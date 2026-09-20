@@ -1,0 +1,26 @@
+#include "eva/components/thermal_monitor.hpp"
+
+#include "eva/alert.hpp"
+#include "eva/telemetry_frame.hpp"
+
+namespace eva {
+
+ThermalMonitor::ThermalMonitor(MessageBus& bus) : bus_(bus) {
+    bus_.subscribe("telemetry.thermal", [this](const std::any& payload) { onTelemetry(payload); });
+}
+
+void ThermalMonitor::onTelemetry(const std::any& payload) {
+    const auto& frame = std::any_cast<const TelemetryFrame&>(payload);
+
+    if (frame.value < kMinSafeTempCelsius || frame.value > kMaxSafeTempCelsius) {
+        bus_.publish("alerts", Alert{
+            "ThermalMonitor",
+            frame.suitId,
+            AlertSeverity::Critical,
+            "Suit temperature outside safe range",
+            frame,
+        });
+    }
+}
+
+} // namespace eva
