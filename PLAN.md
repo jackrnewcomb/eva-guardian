@@ -8,9 +8,10 @@ See [Moon2Mars_Individual.md](Moon2Mars_Individual.md) for the proposal this sup
 Scaffold complete and verified building/running via terminal (`cmake` + MSVC, no
 Visual Studio IDE required):
 - Async in-process pub/sub `MessageBus` (worker thread + queue)
-- `TelemetryFrame` / `Alert` types
-- `O2Monitor`, `PressureMonitor`, `ThermalMonitor` components (single threshold each)
-- `main.cpp` wired up with a static vector of mock frames
+- `SuitTelemetryFrame` (combined o2/pressure/thermal per suit per tick) / `Alert` types
+- `O2Monitor`, `PressureMonitor`, `ThermalMonitor` components with Warning/Critical
+  tiers and edge-triggered alerting (fire only on severity change, not every tick)
+- `Simulator` + stdin command loop in `main.cpp` for live demo input
 
 ## Steps
 
@@ -23,9 +24,13 @@ interval) on the `"telemetry.suit"` topic every second on a background thread.
 to override values live during a demo. All three monitors subscribe to the
 same topic and each reads only the field it cares about.
 
-### 2. Two-tier thresholds (Warning vs Critical)
-Add a soft "Warning" band before the hard "Critical" band in each monitor so
-alert severity escalates realistically instead of only ever firing Critical.
+### 2. Two-tier thresholds (Warning vs Critical) — DONE
+Each monitor now classifies each frame as Info (nominal) / Warning / Critical
+and tracks its last published level, only publishing an alert when the level
+changes. This also fixed a real bug: alerts previously fired on every tick
+while a value stayed out of range, flooding the same console used for stdin
+commands and making it impossible to type. Recovery back to nominal now emits
+a one-time `[INFO]` alert instead of just going silent.
 
 ### 3. Live status dashboard subscriber
 Add a second `"alerts"`/telemetry subscriber that tracks latest value per

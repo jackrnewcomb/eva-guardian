@@ -6,7 +6,8 @@
 
 namespace eva {
 
-enum class AlertSeverity { Warning, Critical };
+// Info marks a recovery ("back to nominal") notice; Warning/Critical mark anomalies.
+enum class AlertSeverity { Info, Warning, Critical };
 
 struct Alert {
     std::string source; // component that raised it, e.g. "O2Monitor"

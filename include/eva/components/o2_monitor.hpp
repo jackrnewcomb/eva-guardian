@@ -2,12 +2,14 @@
 
 #include <any>
 
+#include "eva/alert.hpp"
 #include "eva/message_bus.hpp"
 
 namespace eva {
 
 // Placeholder component: subscribes to suit telemetry and publishes an
-// alert when the O2 reading falls outside a safe range.
+// alert only when the O2 reading crosses into/out of a warning or critical
+// band, rather than on every tick it stays out of range.
 class O2Monitor {
 public:
     explicit O2Monitor(MessageBus& bus);
@@ -16,8 +18,10 @@ private:
     void onTelemetry(const std::any& payload);
 
     MessageBus& bus_;
+    AlertSeverity lastLevel_ = AlertSeverity::Info;
 
-    static constexpr double kMinSafeO2Percent = 19.5;
+    static constexpr double kWarnO2Percent = 19.5;
+    static constexpr double kCriticalO2Percent = 18.0;
 };
 
 } // namespace eva

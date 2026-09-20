@@ -12,15 +12,21 @@ ThermalMonitor::ThermalMonitor(MessageBus& bus) : bus_(bus) {
 void ThermalMonitor::onTelemetry(const std::any& payload) {
     const auto& frame = std::any_cast<const SuitTelemetryFrame&>(payload);
 
-    if (frame.thermalCelsius < kMinSafeTempCelsius || frame.thermalCelsius > kMaxSafeTempCelsius) {
-        bus_.publish("alerts", Alert{
-            "ThermalMonitor",
-            frame.suitId,
-            AlertSeverity::Critical,
-            "Suit temperature outside safe range",
-            frame,
-        });
+    AlertSeverity level = AlertSeverity::Info;
+    if (frame.thermalCelsius < kCriticalMinTempCelsius || frame.thermalCelsius > kCriticalMaxTempCelsius) {
+        level = AlertSeverity::Critical;
+    } else if (frame.thermalCelsius < kWarnMinTempCelsius || frame.thermalCelsius > kWarnMaxTempCelsius) {
+        level = AlertSeverity::Warning;
     }
+
+    if (level == lastLevel_) {
+        return;
+    }
+    lastLevel_ = level;
+
+    const std::string message = level == AlertSeverity::Info ? "Suit temperature back to nominal"
+                                                              : "Suit temperature outside safe range";
+    bus_.publish("alerts", Alert{"ThermalMonitor", frame.suitId, level, message, frame});
 }
 
 } // namespace eva

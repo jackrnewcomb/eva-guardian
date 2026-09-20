@@ -12,15 +12,21 @@ PressureMonitor::PressureMonitor(MessageBus& bus) : bus_(bus) {
 void PressureMonitor::onTelemetry(const std::any& payload) {
     const auto& frame = std::any_cast<const SuitTelemetryFrame&>(payload);
 
-    if (frame.pressureKpa < kMinSafePressureKpa || frame.pressureKpa > kMaxSafePressureKpa) {
-        bus_.publish("alerts", Alert{
-            "PressureMonitor",
-            frame.suitId,
-            AlertSeverity::Critical,
-            "Suit pressure outside safe range",
-            frame,
-        });
+    AlertSeverity level = AlertSeverity::Info;
+    if (frame.pressureKpa < kCriticalMinPressureKpa || frame.pressureKpa > kCriticalMaxPressureKpa) {
+        level = AlertSeverity::Critical;
+    } else if (frame.pressureKpa < kWarnMinPressureKpa || frame.pressureKpa > kWarnMaxPressureKpa) {
+        level = AlertSeverity::Warning;
     }
+
+    if (level == lastLevel_) {
+        return;
+    }
+    lastLevel_ = level;
+
+    const std::string message =
+        level == AlertSeverity::Info ? "Suit pressure back to nominal" : "Suit pressure outside safe range";
+    bus_.publish("alerts", Alert{"PressureMonitor", frame.suitId, level, message, frame});
 }
 
 } // namespace eva

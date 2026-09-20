@@ -2,12 +2,14 @@
 
 #include <any>
 
+#include "eva/alert.hpp"
 #include "eva/message_bus.hpp"
 
 namespace eva {
 
 // Placeholder component: subscribes to suit telemetry and publishes an
-// alert when the thermal reading falls outside a safe range.
+// alert only when the thermal reading crosses into/out of a warning or
+// critical band, rather than on every tick it stays out of range.
 class ThermalMonitor {
 public:
     explicit ThermalMonitor(MessageBus& bus);
@@ -16,9 +18,12 @@ private:
     void onTelemetry(const std::any& payload);
 
     MessageBus& bus_;
+    AlertSeverity lastLevel_ = AlertSeverity::Info;
 
-    static constexpr double kMinSafeTempCelsius = 18.0;
-    static constexpr double kMaxSafeTempCelsius = 32.0;
+    static constexpr double kWarnMinTempCelsius = 18.0;
+    static constexpr double kWarnMaxTempCelsius = 32.0;
+    static constexpr double kCriticalMinTempCelsius = 15.0;
+    static constexpr double kCriticalMaxTempCelsius = 35.0;
 };
 
 } // namespace eva

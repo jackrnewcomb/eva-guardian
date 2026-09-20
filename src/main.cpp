@@ -13,6 +13,8 @@ namespace {
 
 const char* toString(eva::AlertSeverity severity) {
     switch (severity) {
+        case eva::AlertSeverity::Info:
+            return "INFO";
         case eva::AlertSeverity::Warning:
             return "WARNING";
         case eva::AlertSeverity::Critical:
