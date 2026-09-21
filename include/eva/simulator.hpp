@@ -21,8 +21,8 @@ public:
     void stop();
 
     // Parses one command line: "o2 <value>", "pressure <value>",
-    // "thermal <value>", or "reset". Returns false for "quit"/"exit".
-    bool handleCommand(const std::string& line);
+    // "thermal <value>", or "reset".
+    void handleCommand(const std::string& line);
 
 private:
     void publishLoop();

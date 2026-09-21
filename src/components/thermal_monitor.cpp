@@ -19,14 +19,30 @@ void ThermalMonitor::onTelemetry(const std::any& payload) {
         level = AlertSeverity::Warning;
     }
 
-    if (level == lastLevel_) {
+    AlertSeverity& lastLevel = lastLevelBySuit_[frame.suitId];
+    if (level == lastLevel) {
         return;
     }
-    lastLevel_ = level;
+    lastLevel = level;
 
-    const std::string message = level == AlertSeverity::Info ? "Suit temperature back to nominal"
-                                                              : "Suit temperature outside safe range";
-    bus_.publish("alerts", Alert{"ThermalMonitor", frame.suitId, level, message, frame});
+    std::string message;
+    std::string action;
+    switch (level) {
+        case AlertSeverity::Critical:
+            message = "Suit temperature outside safe range";
+            action = "Abort EVA immediately: adjust suit thermal control and return to habitat.";
+            break;
+        case AlertSeverity::Warning:
+            message = "Suit temperature outside safe range";
+            action = "Monitor suit temperature; adjust cooling/heating settings.";
+            break;
+        case AlertSeverity::Info:
+            message = "Suit temperature back to nominal";
+            action = "No action needed.";
+            break;
+    }
+
+    bus_.publish("alerts", Alert{"ThermalMonitor", frame.suitId, "Thermal", level, message, action, frame});
 }
 
 } // namespace eva

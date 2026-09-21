@@ -1,6 +1,8 @@
 #pragma once
 
 #include <any>
+#include <string>
+#include <unordered_map>
 
 #include "eva/alert.hpp"
 #include "eva/message_bus.hpp"
@@ -8,7 +10,7 @@
 namespace eva {
 
 // Placeholder component: subscribes to suit telemetry and publishes an
-// alert only when the pressure reading crosses into/out of a warning or
+// alert only when a suit's pressure reading crosses into/out of a warning or
 // critical band, rather than on every tick it stays out of range.
 class PressureMonitor {
 public:
@@ -18,7 +20,7 @@ private:
     void onTelemetry(const std::any& payload);
 
     MessageBus& bus_;
-    AlertSeverity lastLevel_ = AlertSeverity::Info;
+    std::unordered_map<std::string, AlertSeverity> lastLevelBySuit_;
 
     static constexpr double kWarnMinPressureKpa = 30.0;
     static constexpr double kWarnMaxPressureKpa = 34.0;

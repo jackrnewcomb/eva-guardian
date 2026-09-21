@@ -19,14 +19,30 @@ void O2Monitor::onTelemetry(const std::any& payload) {
         level = AlertSeverity::Warning;
     }
 
-    if (level == lastLevel_) {
+    AlertSeverity& lastLevel = lastLevelBySuit_[frame.suitId];
+    if (level == lastLevel) {
         return;
     }
-    lastLevel_ = level;
+    lastLevel = level;
 
-    const std::string message =
-        level == AlertSeverity::Info ? "O2 level back to nominal" : "O2 level below safe threshold";
-    bus_.publish("alerts", Alert{"O2Monitor", frame.suitId, level, message, frame});
+    std::string message;
+    std::string action;
+    switch (level) {
+        case AlertSeverity::Critical:
+            message = "O2 level below safe threshold";
+            action = "Abort EVA immediately: return to airlock and switch to backup O2 supply.";
+            break;
+        case AlertSeverity::Warning:
+            message = "O2 level below safe threshold";
+            action = "Monitor O2 closely; prepare to shorten EVA duration.";
+            break;
+        case AlertSeverity::Info:
+            message = "O2 level back to nominal";
+            action = "No action needed.";
+            break;
+    }
+
+    bus_.publish("alerts", Alert{"O2Monitor", frame.suitId, "O2", level, message, action, frame});
 }
 
 } // namespace eva

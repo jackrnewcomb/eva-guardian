@@ -19,14 +19,30 @@ void PressureMonitor::onTelemetry(const std::any& payload) {
         level = AlertSeverity::Warning;
     }
 
-    if (level == lastLevel_) {
+    AlertSeverity& lastLevel = lastLevelBySuit_[frame.suitId];
+    if (level == lastLevel) {
         return;
     }
-    lastLevel_ = level;
+    lastLevel = level;
 
-    const std::string message =
-        level == AlertSeverity::Info ? "Suit pressure back to nominal" : "Suit pressure outside safe range";
-    bus_.publish("alerts", Alert{"PressureMonitor", frame.suitId, level, message, frame});
+    std::string message;
+    std::string action;
+    switch (level) {
+        case AlertSeverity::Critical:
+            message = "Suit pressure outside safe range";
+            action = "Abort EVA immediately: check suit seals/valves and return to airlock.";
+            break;
+        case AlertSeverity::Warning:
+            message = "Suit pressure outside safe range";
+            action = "Monitor suit pressure closely; inspect seals at next opportunity.";
+            break;
+        case AlertSeverity::Info:
+            message = "Suit pressure back to nominal";
+            action = "No action needed.";
+            break;
+    }
+
+    bus_.publish("alerts", Alert{"PressureMonitor", frame.suitId, "Pressure", level, message, action, frame});
 }
 
 } // namespace eva

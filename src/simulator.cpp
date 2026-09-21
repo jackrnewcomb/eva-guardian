@@ -28,20 +28,17 @@ void Simulator::stop() {
     }
 }
 
-bool Simulator::handleCommand(const std::string& line) {
+void Simulator::handleCommand(const std::string& line) {
     std::istringstream iss(line);
     std::string command;
     iss >> command;
 
-    if (command == "quit" || command == "exit") {
-        return false;
-    }
     if (command == "reset") {
         o2_ = kNominalO2;
         pressure_ = kNominalPressure;
         thermal_ = kNominalThermal;
-        std::cout << "Reset all metrics to nominal.\n";
-        return true;
+        std::cout << "[" << suitId_ << "] Reset all metrics to nominal.\n";
+        return;
     }
 
     double value = 0.0;
@@ -49,7 +46,7 @@ bool Simulator::handleCommand(const std::string& line) {
         if (!command.empty()) {
             std::cout << "Unrecognized command: " << line << "\n";
         }
-        return true;
+        return;
     }
 
     if (command == "o2") {
@@ -61,8 +58,6 @@ bool Simulator::handleCommand(const std::string& line) {
     } else {
         std::cout << "Unrecognized command: " << line << "\n";
     }
-
-    return true;
 }
 
 void Simulator::publishLoop() {

@@ -10,6 +10,7 @@ add_executable(eva_guardian
     src/main.cpp
     src/message_bus.cpp
     src/simulator.cpp
+    src/dashboard.cpp
     src/components/o2_monitor.cpp
     src/components/pressure_monitor.cpp
     src/components/thermal_monitor.cpp
