@@ -3,6 +3,8 @@
 #include <iostream>
 #include <utility>
 
+#include "eva/log_format.hpp"
+
 namespace eva {
 
 EarthRelay::EarthRelay(MessageBus& bus, std::chrono::milliseconds roundTripDelay)
@@ -50,9 +52,8 @@ void EarthRelay::relayLoop() {
 
         std::this_thread::sleep_until(item.receivedAt + roundTripDelay_);
 
-        std::cout << "[EARTH RELAY, +" << roundTripDelay_.count() << "ms delay] " << item.alert.source
-                   << " (" << item.alert.suitId << "): " << item.alert.message << " -> "
-                   << item.alert.recommendedAction << "\n";
+        const std::string label = "EARTH RELAY, +" + std::to_string(roundTripDelay_.count()) + "ms delay";
+        std::cout << formatAlert(label, item.alert) << "\n";
     }
 }
 

@@ -90,14 +90,21 @@ reactive monitors and this predictive component can't drift out of sync.
 trend gradually instead of only jumping instantly, which is what makes this
 feature demoable.
 
-### 7. Post-EVA debrief report
-On `quit`, print a short summary per suit: peak/trough values, total alerts
-by severity, and time spent in each severity state. Cheap to add and gives a
-tangible end-of-session artifact for a demo.
+### 7. Post-EVA debrief report — DONE
+Added `DebriefRecorder`, a subscriber that tracks per-suit min/max for each
+metric, time spent in each severity state (Info/Warning/Critical), reactive
+alert counts, predictive-warning counts, and composite-escalation counts.
+`quit` calls `printReport()` before exiting, printing a per-suit summary
+table — a tangible end-of-session artifact for a demo.
 
-### 8. Alert/telemetry logging polish
-Human-readable timestamps, consistent log formatting, optional alert log file
-output for demo artifacts.
+### 8. Alert/telemetry logging polish — DONE
+Extracted `eva/log_format.hpp` (`currentTimestamp()`, `severityToString()`,
+`formatAlert()`) so every place an alert gets printed shares one consistent,
+timestamped format: `[HH:MM:SS.mmm] [label, SEVERITY] source (suitId):
+message -> action`. `main.cpp`'s LOCAL printer and `EarthRelay` both use it
+now instead of each having their own ad hoc formatting. Added `AlertLogger`,
+a subscriber that writes every alert to `eva_guardian.log` (truncated each
+run) in the same format, giving a durable demo artifact.
 
 ### 9. Basic tests (CTest)
 - `MessageBus` delivers published messages to subscribers

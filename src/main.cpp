@@ -7,31 +7,18 @@
 #include <unordered_map>
 
 #include "eva/alert.hpp"
+#include "eva/alert_logger.hpp"
 #include "eva/components/o2_monitor.hpp"
 #include "eva/components/pressure_monitor.hpp"
 #include "eva/components/thermal_monitor.hpp"
 #include "eva/dashboard.hpp"
+#include "eva/debrief_recorder.hpp"
 #include "eva/earth_relay.hpp"
+#include "eva/log_format.hpp"
 #include "eva/message_bus.hpp"
 #include "eva/risk_assessor.hpp"
 #include "eva/simulator.hpp"
 #include "eva/trend_predictor.hpp"
-
-namespace {
-
-const char* toString(eva::AlertSeverity severity) {
-    switch (severity) {
-        case eva::AlertSeverity::Info:
-            return "INFO";
-        case eva::AlertSeverity::Warning:
-            return "WARNING";
-        case eva::AlertSeverity::Critical:
-            return "CRITICAL";
-    }
-    return "UNKNOWN";
-}
-
-} // namespace
 
 int main() {
     eva::MessageBus bus;
@@ -42,6 +29,8 @@ int main() {
     eva::Dashboard dashboard(bus);
     eva::RiskAssessor riskAssessor(bus);
     eva::TrendPredictor trendPredictor(bus);
+    eva::DebriefRecorder debriefRecorder(bus);
+    eva::AlertLogger alertLogger(bus, "eva_guardian.log");
 
     // Stand-in for the naive "relay to Earth and wait" alternative this
     // product replaces, contrasted against the instant LOCAL alert below.
@@ -49,8 +38,7 @@ int main() {
 
     bus.subscribe("alerts", [](const std::any& payload) {
         const auto& alert = std::any_cast<const eva::Alert&>(payload);
-        std::cout << "[LOCAL, " << toString(alert.severity) << "] " << alert.source << " ("
-                   << alert.suitId << "): " << alert.message << " -> " << alert.recommendedAction << "\n";
+        std::cout << eva::formatAlert("LOCAL", alert) << "\n";
     });
 
     std::unordered_map<std::string, std::unique_ptr<eva::Simulator>> simulators;
@@ -64,6 +52,7 @@ int main() {
     std::cout << "Commands: <suit> o2|pressure|thermal <value>, <suit> o2|pressure|thermal drift "
                  "<rate/s>, <suit> reset, dashboard, quit\n";
     std::cout << "Watch for [LOCAL] alerts (instant) vs [EARTH RELAY] alerts (~8s simulated delay)\n";
+    std::cout << "'quit' prints a post-EVA debrief summary before exiting\n";
 
     std::string line;
     while (std::getline(std::cin, line)) {
@@ -100,6 +89,8 @@ int main() {
     for (auto& [suitId, simulator] : simulators) {
         simulator->stop();
     }
+
+    debriefRecorder.printReport();
 
     return 0;
 }

@@ -14,6 +14,9 @@ add_executable(eva_guardian
     src/earth_relay.cpp
     src/risk_assessor.cpp
     src/trend_predictor.cpp
+    src/debrief_recorder.cpp
+    src/log_format.cpp
+    src/alert_logger.cpp
     src/components/o2_monitor.cpp
     src/components/pressure_monitor.cpp
     src/components/thermal_monitor.cpp
