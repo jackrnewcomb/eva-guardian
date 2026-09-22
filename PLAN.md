@@ -106,15 +106,33 @@ now instead of each having their own ad hoc formatting. Added `AlertLogger`,
 a subscriber that writes every alert to `eva_guardian.log` (truncated each
 run) in the same format, giving a durable demo artifact.
 
-### 9. Basic tests (CTest)
-- `MessageBus` delivers published messages to subscribers
-- Each monitor fires at the correct threshold boundary and stays silent when nominal
+### 9. Basic tests (CTest) — DONE
+Refactored the build into an `eva_core` static library (everything except
+`main.cpp`) linked by both `eva_guardian` and a new `eva_tests` executable,
+registered with CTest via `enable_testing()`/`add_test()`. Added a minimal
+self-registering `TEST_CASE`/`CHECK` harness (no external framework
+dependency) in `tests/`, covering:
+- `MessageBus` delivers published messages only to matching-topic subscribers
+- `O2Monitor` stays silent when nominal and fires at the critical boundary
 - Per-suit edge-triggered state doesn't cross-contaminate between suits
-- `RiskAssessor` escalates only when 2+ metrics are abnormal for the same suit
+- `RiskAssessor` escalates only once 2+ metrics are abnormal for the same suit
 
-### 10. README + demo script
-Terminal-based build/run quickstart, plus a scripted demo sequence
-(nominal → warning → critical → recovery, across multiple suits).
+Run via `ctest -C Debug --output-on-failure` from the `build/` directory
+(all 6 checks pass).
+
+### 10. README + demo script — demo script DONE, README still open
+Added [demo.ps1](demo.ps1): a scripted, timed walkthrough that launches
+`eva_guardian.exe` via `System.Diagnostics.Process` (stdin redirected only,
+stdout left attached to the console so it displays live) and sends commands
+with real `Start-Sleep` pacing between them. One run touches every feature:
+baseline dashboard -> gradual O2 drift (predictive alert fires before the
+reactive one) -> Earth-relay contrast (~8s delayed echo) -> second
+simultaneous anomaly -> composite risk escalation -> dashboard -> recovery
+-> independent multi-suit anomalies -> final dashboard -> quit -> post-EVA
+debrief. Verified end-to-end. Run with
+`powershell -ExecutionPolicy Bypass -File .\demo.ps1` (also added
+`std::cout.setf(std::ios_base::unitbuf)` in `main()` so output isn't fully
+buffered when redirected). Still need: a README with build/run quickstart.
 
 ### 11. Final polish pass
 Clean up TODOs, verify a clean build from scratch, rehearse the demo end-to-end.

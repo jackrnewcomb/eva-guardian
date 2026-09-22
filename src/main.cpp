@@ -21,6 +21,11 @@
 #include "eva/trend_predictor.hpp"
 
 int main() {
+    // Force line-by-line flushing so output appears immediately even when
+    // stdout is redirected/piped (e.g. by a scripted demo), not just when
+    // attached to a real console.
+    std::cout.setf(std::ios_base::unitbuf);
+
     eva::MessageBus bus;
 
     eva::O2Monitor o2Monitor(bus);

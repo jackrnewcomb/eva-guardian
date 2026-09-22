@@ -6,8 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Threads REQUIRED)
 
-add_executable(eva_guardian
-    src/main.cpp
+add_library(eva_core STATIC
     src/message_bus.cpp
     src/simulator.cpp
     src/dashboard.cpp
@@ -22,5 +21,11 @@ add_executable(eva_guardian
     src/components/thermal_monitor.cpp
 )
 
-target_include_directories(eva_guardian PRIVATE include)
-target_link_libraries(eva_guardian PRIVATE Threads::Threads)
+target_include_directories(eva_core PUBLIC include)
+target_link_libraries(eva_core PUBLIC Threads::Threads)
+
+add_executable(eva_guardian src/main.cpp)
+target_link_libraries(eva_guardian PRIVATE eva_core)
+
+enable_testing()
+add_subdirectory(tests)
