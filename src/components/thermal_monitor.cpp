@@ -2,6 +2,7 @@
 
 #include "eva/alert.hpp"
 #include "eva/telemetry_frame.hpp"
+#include "eva/thresholds.hpp"
 
 namespace eva {
 
@@ -13,9 +14,9 @@ void ThermalMonitor::onTelemetry(const std::any& payload) {
     const auto& frame = std::any_cast<const SuitTelemetryFrame&>(payload);
 
     AlertSeverity level = AlertSeverity::Info;
-    if (frame.thermalCelsius < kCriticalMinTempCelsius || frame.thermalCelsius > kCriticalMaxTempCelsius) {
+    if (frame.thermalCelsius < kThermalCriticalMinCelsius || frame.thermalCelsius > kThermalCriticalMaxCelsius) {
         level = AlertSeverity::Critical;
-    } else if (frame.thermalCelsius < kWarnMinTempCelsius || frame.thermalCelsius > kWarnMaxTempCelsius) {
+    } else if (frame.thermalCelsius < kThermalWarnMinCelsius || frame.thermalCelsius > kThermalWarnMaxCelsius) {
         level = AlertSeverity::Warning;
     }
 

@@ -55,18 +55,59 @@ makes the system feel like an actual decision-support product:
   plug into the same `"alerts"` topic without the engine owning the UI. Our
   console table is just a demo stand-in to prove that out.
 
-### 4. Alert/telemetry logging polish
+### 4. Earth-independence demo (simulated Mission Control relay) — DONE
+Added `EarthRelay`, a subscriber that reacts to the same `"alerts"` topic but
+only after a simulated 8s light-delay round trip (its own internal
+queue + worker thread, so the delay never blocks the bus or other
+subscribers). `main.cpp`'s direct alert printer is now labeled `[LOCAL, ...]`
+and prints instantly, while `EarthRelay` prints the same alert labeled
+`[EARTH RELAY, +8000ms delay]` several seconds later — a side-by-side, visual
+demonstration of the proposal's core pitch (Earth-independent, immediate
+decision support) instead of just asserting it in prose.
+
+### 5. Composite/correlated risk reasoning — DONE
+Added `RiskAssessor`, a subscriber that tracks each suit's latest O2/Pressure/
+Thermal severity (from the same `"alerts"` topic) and escalates to a
+`Critical` composite alert once 2+ metrics are simultaneously abnormal for
+the same suit (e.g. "Multiple simultaneous anomalies detected (O2, Pressure)
+-> Recommend full EVA abort..."), de-escalating with an `[INFO]` recovery
+alert once fewer than 2 remain abnormal. Edge-triggered per suit like the
+other monitors. This demonstrates why the pub/sub architecture matters:
+`RiskAssessor` composes signals from independently-built monitors into a
+diagnosis none of them could raise alone.
+
+### 6. Predictive "time to critical" alerts — DONE
+Added `TrendPredictor`, a subscriber that tracks each suit's previous sample
+(value + timestamp) per metric, computes rate of change, and projects
+forward to estimate time until the critical threshold is crossed. If that
+projection is within a 60s horizon, it publishes a one-time `[WARNING]`
+alert (e.g. "Projected to reach critical O2 in ~4s at current rate ->
+Prepare corrective action now..."), distinct from and typically arriving
+before the reactive monitors' own Warning/Critical alerts. Also extracted
+`eva/thresholds.hpp` with the shared safety threshold constants so the
+reactive monitors and this predictive component can't drift out of sync.
+`Simulator` gained a `<suit> <metric> drift <rate/s>` command so a value can
+trend gradually instead of only jumping instantly, which is what makes this
+feature demoable.
+
+### 7. Post-EVA debrief report
+On `quit`, print a short summary per suit: peak/trough values, total alerts
+by severity, and time spent in each severity state. Cheap to add and gives a
+tangible end-of-session artifact for a demo.
+
+### 8. Alert/telemetry logging polish
 Human-readable timestamps, consistent log formatting, optional alert log file
 output for demo artifacts.
 
-### 5. Basic tests (CTest)
+### 9. Basic tests (CTest)
 - `MessageBus` delivers published messages to subscribers
 - Each monitor fires at the correct threshold boundary and stays silent when nominal
 - Per-suit edge-triggered state doesn't cross-contaminate between suits
+- `RiskAssessor` escalates only when 2+ metrics are abnormal for the same suit
 
-### 6. README + demo script
+### 10. README + demo script
 Terminal-based build/run quickstart, plus a scripted demo sequence
 (nominal → warning → critical → recovery, across multiple suits).
 
-### 7. Final polish pass
+### 11. Final polish pass
 Clean up TODOs, verify a clean build from scratch, rehearse the demo end-to-end.

@@ -1,4 +1,5 @@
 #include <any>
+#include <chrono>
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -10,8 +11,11 @@
 #include "eva/components/pressure_monitor.hpp"
 #include "eva/components/thermal_monitor.hpp"
 #include "eva/dashboard.hpp"
+#include "eva/earth_relay.hpp"
 #include "eva/message_bus.hpp"
+#include "eva/risk_assessor.hpp"
 #include "eva/simulator.hpp"
+#include "eva/trend_predictor.hpp"
 
 namespace {
 
@@ -36,11 +40,17 @@ int main() {
     eva::PressureMonitor pressureMonitor(bus);
     eva::ThermalMonitor thermalMonitor(bus);
     eva::Dashboard dashboard(bus);
+    eva::RiskAssessor riskAssessor(bus);
+    eva::TrendPredictor trendPredictor(bus);
+
+    // Stand-in for the naive "relay to Earth and wait" alternative this
+    // product replaces, contrasted against the instant LOCAL alert below.
+    eva::EarthRelay earthRelay(bus, std::chrono::seconds(8));
 
     bus.subscribe("alerts", [](const std::any& payload) {
         const auto& alert = std::any_cast<const eva::Alert&>(payload);
-        std::cout << "[" << toString(alert.severity) << "] " << alert.source << " (" << alert.suitId
-                   << "): " << alert.message << " -> " << alert.recommendedAction << "\n";
+        std::cout << "[LOCAL, " << toString(alert.severity) << "] " << alert.source << " ("
+                   << alert.suitId << "): " << alert.message << " -> " << alert.recommendedAction << "\n";
     });
 
     std::unordered_map<std::string, std::unique_ptr<eva::Simulator>> simulators;
@@ -51,7 +61,9 @@ int main() {
     }
 
     std::cout << "EVA Guardian running with suits: suit-1, suit-2, suit-3\n";
-    std::cout << "Commands: <suit> o2|pressure|thermal <value>, <suit> reset, dashboard, quit\n";
+    std::cout << "Commands: <suit> o2|pressure|thermal <value>, <suit> o2|pressure|thermal drift "
+                 "<rate/s>, <suit> reset, dashboard, quit\n";
+    std::cout << "Watch for [LOCAL] alerts (instant) vs [EARTH RELAY] alerts (~8s simulated delay)\n";
 
     std::string line;
     while (std::getline(std::cin, line)) {

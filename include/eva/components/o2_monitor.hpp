@@ -21,9 +21,6 @@ private:
 
     MessageBus& bus_;
     std::unordered_map<std::string, AlertSeverity> lastLevelBySuit_;
-
-    static constexpr double kWarnO2Percent = 19.5;
-    static constexpr double kCriticalO2Percent = 18.0;
 };
 
 } // namespace eva

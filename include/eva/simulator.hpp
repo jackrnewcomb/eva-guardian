@@ -21,7 +21,8 @@ public:
     void stop();
 
     // Parses one command line: "o2 <value>", "pressure <value>",
-    // "thermal <value>", or "reset".
+    // "thermal <value>", "o2 drift <rate-per-second>" (also pressure/thermal),
+    // or "reset".
     void handleCommand(const std::string& line);
 
 private:
@@ -34,6 +35,10 @@ private:
     std::atomic<double> o2_;
     std::atomic<double> pressure_;
     std::atomic<double> thermal_;
+
+    std::atomic<double> o2Rate_{0.0};
+    std::atomic<double> pressureRate_{0.0};
+    std::atomic<double> thermalRate_{0.0};
 
     std::thread worker_;
     std::atomic<bool> running_{false};

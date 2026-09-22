@@ -2,6 +2,7 @@
 
 #include "eva/alert.hpp"
 #include "eva/telemetry_frame.hpp"
+#include "eva/thresholds.hpp"
 
 namespace eva {
 
@@ -13,9 +14,9 @@ void PressureMonitor::onTelemetry(const std::any& payload) {
     const auto& frame = std::any_cast<const SuitTelemetryFrame&>(payload);
 
     AlertSeverity level = AlertSeverity::Info;
-    if (frame.pressureKpa < kCriticalMinPressureKpa || frame.pressureKpa > kCriticalMaxPressureKpa) {
+    if (frame.pressureKpa < kPressureCriticalMinKpa || frame.pressureKpa > kPressureCriticalMaxKpa) {
         level = AlertSeverity::Critical;
-    } else if (frame.pressureKpa < kWarnMinPressureKpa || frame.pressureKpa > kWarnMaxPressureKpa) {
+    } else if (frame.pressureKpa < kPressureWarnMinKpa || frame.pressureKpa > kPressureWarnMaxKpa) {
         level = AlertSeverity::Warning;
     }
 

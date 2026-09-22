@@ -21,11 +21,6 @@ private:
 
     MessageBus& bus_;
     std::unordered_map<std::string, AlertSeverity> lastLevelBySuit_;
-
-    static constexpr double kWarnMinTempCelsius = 18.0;
-    static constexpr double kWarnMaxTempCelsius = 32.0;
-    static constexpr double kCriticalMinTempCelsius = 15.0;
-    static constexpr double kCriticalMaxTempCelsius = 35.0;
 };
 
 } // namespace eva

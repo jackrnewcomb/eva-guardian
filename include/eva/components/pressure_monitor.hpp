@@ -21,11 +21,6 @@ private:
 
     MessageBus& bus_;
     std::unordered_map<std::string, AlertSeverity> lastLevelBySuit_;
-
-    static constexpr double kWarnMinPressureKpa = 30.0;
-    static constexpr double kWarnMaxPressureKpa = 34.0;
-    static constexpr double kCriticalMinPressureKpa = 28.0;
-    static constexpr double kCriticalMaxPressureKpa = 36.0;
 };
 
 } // namespace eva

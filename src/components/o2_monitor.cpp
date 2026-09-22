@@ -2,6 +2,7 @@
 
 #include "eva/alert.hpp"
 #include "eva/telemetry_frame.hpp"
+#include "eva/thresholds.hpp"
 
 namespace eva {
 
@@ -13,9 +14,9 @@ void O2Monitor::onTelemetry(const std::any& payload) {
     const auto& frame = std::any_cast<const SuitTelemetryFrame&>(payload);
 
     AlertSeverity level = AlertSeverity::Info;
-    if (frame.o2Percent < kCriticalO2Percent) {
+    if (frame.o2Percent < kO2CriticalPercent) {
         level = AlertSeverity::Critical;
-    } else if (frame.o2Percent < kWarnO2Percent) {
+    } else if (frame.o2Percent < kO2WarnPercent) {
         level = AlertSeverity::Warning;
     }
 
