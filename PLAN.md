@@ -120,7 +120,7 @@ dependency) in `tests/`, covering:
 Run via `ctest -C Debug --output-on-failure` from the `build/` directory
 (all 6 checks pass).
 
-### 10. README + demo script — demo script DONE, README still open
+### 10. README + demo script — DONE
 Added [demo.ps1](demo.ps1): a scripted, timed walkthrough that launches
 `eva_guardian.exe` via `System.Diagnostics.Process` (stdin redirected only,
 stdout left attached to the console so it displays live) and sends commands
@@ -132,7 +132,9 @@ simultaneous anomaly -> composite risk escalation -> dashboard -> recovery
 debrief. Verified end-to-end. Run with
 `powershell -ExecutionPolicy Bypass -File .\demo.ps1` (also added
 `std::cout.setf(std::ios_base::unitbuf)` in `main()` so output isn't fully
-buffered when redirected). Still need: a README with build/run quickstart.
+buffered when redirected). Added [README.md](README.md) with a product
+description, current feature list, build/run/test instructions, and a
+step-by-step "what to expect" walkthrough of the demo.
 
 ### 11. Final polish pass
 Clean up TODOs, verify a clean build from scratch, rehearse the demo end-to-end.
